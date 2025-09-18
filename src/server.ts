@@ -132,7 +132,7 @@ async function startServer() {
   try {
     // Initialize database
     console.log('🔄 Initializing database...');
-    await initializeDatabase();
+    // await initializeDatabase();
 
     // Test connection pooling
     const dbConnected = await testConnection();
