@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { AppError } from '../utils';
+// import { AppError } from '../utils';
 
 export interface EmailData {
   to: string;
@@ -42,7 +42,7 @@ export default class NotificationService {
    */
   private initializeEmailTransporter() {
     try {
-      this.emailTransporter = nodemailer.createTransporter({
+      this.emailTransporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'localhost',
         port: parseInt(process.env.SMTP_PORT || '587'),
         secure: process.env.SMTP_SECURE === 'true',

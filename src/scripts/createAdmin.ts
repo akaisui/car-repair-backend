@@ -31,7 +31,7 @@ async function createAdminUser(options: CreateAdminOptions): Promise<void> {
       email: options.email,
       password: options.password,
       full_name: options.fullName,
-      phone: options.phone,
+      phone: options.phone || '',
       role: 'admin',
     });
 

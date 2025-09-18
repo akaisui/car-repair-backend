@@ -1,6 +1,6 @@
 import { Pool } from 'mysql2/promise';
 import db from '../config/database';
-import { ExportService } from './ExportService';
+import ExportService from './ExportService';
 
 export interface InventoryReportData {
   part_id: number;
@@ -255,7 +255,7 @@ export class InventoryReportService {
       FROM parts
     `);
 
-    const overview = overviewRows[0] as any;
+    const overview = (overviewRows as any[])[0] as any;
 
     // Category breakdown
     const [categoryRows] = await this.pool.execute(`
@@ -359,7 +359,7 @@ export class InventoryReportService {
       WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
     `);
 
-    const overview = overviewRows[0] as any;
+    const overview = (overviewRows as any[])[0] as any;
 
     // Daily movements for last 30 days
     const [dailyRows] = await this.pool.execute(`
@@ -462,7 +462,8 @@ export class InventoryReportService {
       'Số ngày không di chuyển': item.days_since_last_movement || '',
     }));
 
-    return ExportService.exportData(exportData, format, 'inventory_report');
+    const result = ExportService.exportData(exportData, format, 'inventory_report');
+    return result.content;
   }
 
   static async exportStockMovementReport(
@@ -484,7 +485,8 @@ export class InventoryReportService {
       'Ngày tạo': item.created_at,
     }));
 
-    return ExportService.exportData(exportData, format, 'stock_movement_report');
+    const result = ExportService.exportData(exportData, format, 'stock_movement_report');
+    return result.content;
   }
 
   private static getStockStatusCondition(status: string): string {

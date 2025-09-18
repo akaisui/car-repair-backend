@@ -4,7 +4,7 @@ import { createApiResponse, AppError } from '../utils';
 /**
  * Global error handling middleware
  */
-const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+const errorHandler = (err: any, req: Request, res: Response, _next: NextFunction) => {
   let error = { ...err };
   error.message = err.message;
 
@@ -107,8 +107,8 @@ const errorHandler = (err: any, req: Request, res: Response, next: NextFunction)
 
   // Add additional error info in development
   if (process.env.NODE_ENV === 'development') {
-    response.error = {
-      ...response.error,
+    (response as any).error = {
+      ...(response as any).error,
       stack: err.stack,
       code: err.code,
       details: err.details,
@@ -158,7 +158,7 @@ export const asyncHandler = (fn: Function) => (req: Request, res: Response, next
 /**
  * Not found error for undefined routes
  */
-export const notFound = (req: Request, res: Response, next: NextFunction) => {
+export const notFound = (req: Request, _res: Response, next: NextFunction) => {
   const error = new AppError(`Route ${req.originalUrl} not found`, 404);
   next(error);
 };

@@ -26,17 +26,18 @@ export default class ExportService {
    * Export users to various formats
    */
   static async exportUsers(options: ExportOptions): Promise<ExportResult> {
-    const filters: any = options.filters || {};
+    // const filters: any = options.filters || {};
 
     const users = await User.findAll({
       orderBy: 'created_at DESC'
     });
+    // const customers = users.filter(user => user.role === 'customer');
 
     const filename = options.filename || `customers_${new Date().toISOString().split('T')[0]}`;
 
     switch (options.format) {
       case 'json':
-        return this.exportToJSON(customers, `${filename}.json`);
+        return this.exportToJSON(users, `${filename}.json`);
 
       case 'csv':
         return this.exportUsersToCSV(users, `${filename}.csv`, options.columns);
@@ -118,8 +119,9 @@ export default class ExportService {
     const users = await User.findAll({
       orderBy: 'loyalty_points DESC'
     });
+    const customers = users.filter(user => user.role === 'customer');
 
-    const loyaltyReport = customers.map(customer => ({
+    const loyaltyReport = customers.map((customer: any) => ({
       customer_code: customer.customer_code,
       full_name: customer.full_name,
       email: customer.email,
@@ -158,9 +160,9 @@ export default class ExportService {
       year: vehicle.year,
       customer_name: vehicle.customer_name,
       customer_phone: vehicle.customer_phone,
-      last_service_date: vehicle.last_service_date,
-      days_since_service: vehicle.days_since_service,
-      maintenance_urgency: this.getMaintenanceUrgency(vehicle.days_since_service)
+      last_service_date: (vehicle as any).last_service_date,
+      days_since_service: (vehicle as any).days_since_service,
+      maintenance_urgency: this.getMaintenanceUrgency((vehicle as any).days_since_service)
     }));
 
     const filename = `maintenance_report_${new Date().toISOString().split('T')[0]}.csv`;
@@ -185,7 +187,7 @@ export default class ExportService {
   /**
    * Export customers to CSV format
    */
-  private static exportUsersToCSV(users: any[], filename: string, customColumns?: string[]): ExportResult {
+  private static exportUsersToCSV(_users: any[], filename: string, customColumns?: string[]): ExportResult {
     const defaultColumns = [
       'id', 'customer_code', 'full_name', 'email', 'phone',
       'address', 'gender', 'date_of_birth', 'loyalty_points',
@@ -197,7 +199,7 @@ export default class ExportService {
     const headers = columns.map(col => this.formatColumnHeader(col));
     const csvHeader = headers.join(',');
 
-    const csvRows = customers.map(customer =>
+    const csvRows = _users.map((customer: any) =>
       columns.map(col => this.formatCSVValue(customer[col])).join(',')
     );
 
@@ -367,6 +369,52 @@ export default class ExportService {
     }
 
     return escapedValue;
+  }
+
+  /**
+   * Generic export data method
+   */
+  static exportData(data: any[], format: 'csv' | 'json' | 'excel', filename: string): ExportResult {
+    switch (format) {
+      case 'json':
+        return this.exportToJSON(data, `${filename}.json`);
+      case 'csv':
+      case 'excel':
+        return this.exportToCSV(data, `${filename}.csv`);
+      default:
+        throw new Error('Unsupported export format');
+    }
+  }
+
+  /**
+   * Generic CSV export
+   */
+  private static exportToCSV(data: any[], filename: string): ExportResult {
+    if (data.length === 0) {
+      return {
+        filename,
+        content: '',
+        mimeType: 'text/csv; charset=utf-8',
+        size: 0
+      };
+    }
+
+    const headers = Object.keys(data[0]);
+    const csvHeader = headers.join(',');
+
+    const csvRows = data.map(row =>
+      headers.map(header => this.formatCSVValue(row[header])).join(',')
+    );
+
+    const csvContent = [csvHeader, ...csvRows].join('\n');
+    const content = '\ufeff' + csvContent;
+
+    return {
+      filename,
+      content,
+      mimeType: 'text/csv; charset=utf-8',
+      size: Buffer.byteLength(content, 'utf8')
+    };
   }
 
   /**

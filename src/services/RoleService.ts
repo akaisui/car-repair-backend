@@ -205,7 +205,7 @@ export default class RoleService {
   static hasPermission(user: User, permission: string): boolean {
     const userRole = user.role as keyof typeof RoleService.ROLE_PERMISSIONS;
     const permissions = this.ROLE_PERMISSIONS[userRole] || [];
-    return permissions.includes(permission);
+    return (permissions as readonly string[]).includes(permission);
   }
 
   /**
@@ -227,7 +227,7 @@ export default class RoleService {
    */
   static getUserPermissions(user: User): string[] {
     const userRole = user.role as keyof typeof RoleService.ROLE_PERMISSIONS;
-    return this.ROLE_PERMISSIONS[userRole] || [];
+    return [...(this.ROLE_PERMISSIONS[userRole] || [])];
   }
 
   /**

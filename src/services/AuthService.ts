@@ -31,17 +31,18 @@ export default class AuthService {
     ipAddress: string,
     userAgent?: string
   ): Promise<AuthResponse> {
-    const { email, password } = loginData;
+    const { email, phone, password } = loginData;
+    const loginIdentifier = email || phone;
 
     // Check for too many failed attempts
-    await this.checkLoginAttempts(email, ipAddress);
+    await this.checkLoginAttempts(loginIdentifier!, ipAddress);
 
     // Verify credentials
-    const user = await User.verifyPassword(email, password);
+    const user = await User.verifyPassword(loginIdentifier!, password);
     if (!user) {
       // Log failed attempt
       await this.logLoginAttempt({
-        email,
+        email: loginIdentifier!,
         ipAddress,
         userAgent,
         success: false,
@@ -59,14 +60,14 @@ export default class AuthService {
 
     // Log successful attempt
     await this.logLoginAttempt({
-      email,
+      email: loginIdentifier!,
       ipAddress,
       userAgent,
       success: true,
     });
 
     // Clear any existing failed attempts
-    await this.clearFailedAttempts(email, ipAddress);
+    await this.clearFailedAttempts(loginIdentifier!, ipAddress);
 
     return {
       user,

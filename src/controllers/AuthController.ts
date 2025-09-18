@@ -18,7 +18,7 @@ export default class AuthController extends BaseController {
     this.validateRequired(req.body, ['phone', 'password']);
 
     // Verify user credentials by phone
-    const user = await User.verifyPasswordByPhone(phone, password);
+    const user = await User.verifyPasswordByPhone(phone!, password);
     if (!user) {
       return this.error(res, 'Số điện thoại hoặc mật khẩu không đúng', 401, 'INVALID_CREDENTIALS');
     }

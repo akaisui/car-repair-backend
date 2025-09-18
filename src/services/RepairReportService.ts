@@ -1,6 +1,6 @@
 import { Pool } from 'mysql2/promise';
 import db from '../config/database';
-import { ExportService } from './ExportService';
+import ExportService from './ExportService';
 
 export interface RepairReportData {
   repair_id: number;
@@ -249,7 +249,7 @@ export class RepairReportService {
       baseParams
     );
 
-    const overview = overviewRows[0] as any;
+    const overview = (overviewRows as any[])[0] as any;
 
     // Status distribution
     const totalRepairs = overview.total_repairs || 1;
@@ -483,10 +483,10 @@ export class RepairReportService {
       params
     );
 
-    const efficiency = efficiencyRows[0] as any;
-    const financial = financialRows[0] as any;
-    const customer = customerRows[0] as any;
-    const operational = operationalRows[0] as any;
+    const efficiency = (efficiencyRows as any[])[0] as any;
+    const financial = (financialRows as any[])[0] as any;
+    const customer = (customerRows as any[])[0] as any;
+    const operational = (operationalRows as any[])[0] as any;
 
     return {
       efficiency_metrics: {
@@ -545,7 +545,8 @@ export class RepairReportService {
       'Ngày tạo': item.created_at,
     }));
 
-    return ExportService.exportData(exportData, format, 'repair_report');
+    const result = ExportService.exportData(exportData, format, 'repair_report');
+    return result.content;
   }
 
   static async getRepairEfficiencyReport(
