@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import { testConnection, initializeDatabase, getPoolStats } from './config/database';
+import { testConnection, getPoolStats } from './config/database';
 import { setupSwagger } from './config/swagger';
 import routes from './routes';
 
