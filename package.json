@@ -12,6 +12,7 @@
     "migrate:unseed": "ts-node src/scripts/migrate.ts unseed",
     "migrate:reset": "ts-node src/scripts/migrate.ts reset",
     "migrate:status": "ts-node src/scripts/migrate.ts status",
+    "migrate:init": "node src/scripts/initDatabase.js",
     "create-admin": "ts-node src/scripts/createAdmin.ts",
     "create-admin:default": "ts-node src/scripts/createAdmin.ts --default",
     "cleanup": "ts-node src/scripts/cleanup.ts",
